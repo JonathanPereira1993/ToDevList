@@ -6,6 +6,7 @@ export const GlobalStyles = {
     grey: "#5B5B5FFF",
     white: "#FBFBFBFF",
     lightBlue: "#DBECF6",
+    error500: "#9b095c",
   },
   spaces: {
     xs: 4,

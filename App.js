@@ -8,6 +8,8 @@ import AllTodos from "./screens/AllTodos";
 import { GlobalStyles } from "./constants/styles";
 import ManageToDo from "./screens/ManageToDo";
 
+import TodosContextProvider from "./store/todos-context";
+
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
@@ -15,29 +17,31 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: GlobalStyles.colors.primary,
-            },
-            headerTintColor: GlobalStyles.colors.white,
-          }}
-        >
-          <Stack.Screen
-            name="AllTodos"
-            component={AllTodos}
-            options={{
-              title: "All Todo's",
+      <TodosContextProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: GlobalStyles.colors.primary,
+              },
+              headerTintColor: GlobalStyles.colors.white,
             }}
-          />
-          <Stack.Screen
-            name="ManageTodo"
-            component={ManageToDo}
-            options={{ title: "Manage Todo" }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              name="AllTodos"
+              component={AllTodos}
+              options={{
+                title: "All Todo's",
+              }}
+            />
+            <Stack.Screen
+              name="ManageTodo"
+              component={ManageToDo}
+              options={{ title: "Manage Todo" }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </TodosContextProvider>
     </>
   );
 }
