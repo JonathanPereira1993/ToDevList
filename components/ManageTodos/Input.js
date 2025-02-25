@@ -26,20 +26,26 @@ export default Input;
 
 const styles = StyleSheet.create({
   inputContainer: {
+    position: "relative",
     marginHorizontal: 4,
     marginVertical: 8,
+    marginBottom: 20,
+    zIndex: 2,
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "400",
     color: GlobalStyles.colors.text,
     marginBottom: 4,
   },
   input: {
     backgroundColor: GlobalStyles.colors.lightBlue,
     color: GlobalStyles.colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 18,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: GlobalStyles.colors.lightGrey,
     fontSize: 18,
   },
   inputMultiline: {

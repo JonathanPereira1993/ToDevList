@@ -5,16 +5,7 @@ import CheckBox from "../UI/CheckBox";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 
-const TodoItem = ({
-  id,
-  iconName,
-  iconSize,
-  iconColor,
-  title,
-  date,
-  onCheck,
-  onOpen,
-}) => {
+const TodoItem = ({ id, iconName, iconSize, iconColor, title, date }) => {
   const [ischecked, setIsChecked] = useState();
   const navigation = useNavigation();
 
