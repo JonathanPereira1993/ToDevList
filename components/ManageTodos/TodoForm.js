@@ -11,8 +11,8 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
       value: defaultValues?.title ? defaultValues.title.toString() : "",
       isValid: true,
     },
-    date: {
-      value: defaultValues?.date ? getFormattedDate(defaultValues.date) : "",
+    notes: {
+      value: defaultValues?.notes ? defaultValues.notes.toString() : "",
       isValid: true,
     },
   });
@@ -29,17 +29,18 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
   const submitHandler = () => {
     const todoData = {
       title: inputs.title.value,
-      date: new Date(inputs.date.value),
+      notes: inputs.notes.value,
+      createdAt: getFormattedDate(new Date()),
+      checked: false,
     };
 
     const titleIsValid = todoData.title.trim().length > 0;
-    const dateIsValid = !isNaN(todoData.date.getTime());
 
-    if (!titleIsValid || !dateIsValid) {
+    if (!titleIsValid) {
       setInputs((curInputs) => {
         return {
           title: { value: curInputs.title.value, isValid: titleIsValid },
-          date: { value: curInputs.date.value, isValid: dateIsValid },
+          notes: { value: curInputs.notes.value, isValid: true },
         };
       });
       return;
@@ -48,46 +49,51 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
     onSubmit(todoData);
   };
 
-  const formIsInvalid = !inputs.title.isValid || !inputs.date.isValid;
+  const formIsInvalid = !inputs.title.isValid;
 
   return (
     <View style={styles.form}>
-      <Text style={styles.title}>Your Todo</Text>
-      <View style={styles.inputsRow}>
-        <Input
-          style={styles.rowInput}
-          label="Title"
-          invalid={!inputs.title.isValid}
-          textInputConfig={{
-            onChangeText: inputChangeHandler.bind(this, "title"),
-            value: inputs.title.value,
-          }}
-        />
+      <View style={styles.fullHeight}>
+        <View style={styles.inputsRow}>
+          <Input
+            style={styles.rowInput}
+            label="Title"
+            invalid={!inputs.title.isValid}
+            textInputConfig={{
+              onChangeText: inputChangeHandler.bind(this, "title"),
+              value: inputs.title.value,
+            }}
+          />
+        </View>
+        <View style={styles.inputsRow}>
+          <Input
+            style={styles.rowInput}
+            label="Notes"
+            invalid={!inputs.title.isValid}
+            textInputConfig={{
+              multiline: true,
+              onChangeText: inputChangeHandler.bind(this, "notes"),
+              value: inputs.notes.value,
+            }}
+          />
+        </View>
+        {formIsInvalid && (
+          <Text style={styles.errorText}>
+            Invalid Input Values - Please check the input data!
+          </Text>
+        )}
       </View>
-      <View style={styles.inputsRow}>
-        <Input
-          style={styles.rowInput}
-          label="Date"
-          invalid={!inputs.date.isValid}
-          textInputConfig={{
-            placeholder: "YYYY-MM-DD",
-            maxLength: 10,
-            onChangeText: inputChangeHandler.bind(this, "date"),
-            value: inputs.date.value,
-          }}
-        />
-      </View>
-      {formIsInvalid && (
-        <Text style={styles.errorText}>
-          Invalid Input Values - Please check the input data!
-        </Text>
-      )}
       <View style={styles.buttons}>
-        <Button style={styles.button} onPress={onCancel}>
-          Cancel
-        </Button>
         <Button style={styles.button} onPress={submitHandler}>
           {submitButtonLabel}
+        </Button>
+        <Button
+          style={styles.button}
+          buttonStyle={styles.cancelButton}
+          textButtonStyle={styles.cancelButtonText}
+          onPress={onCancel}
+        >
+          Cancel
         </Button>
       </View>
     </View>
@@ -99,6 +105,11 @@ export default TodoForm;
 const styles = StyleSheet.create({
   form: {
     marginTop: 40,
+    flex: 1,
+    paddingBottom: GlobalStyles.spaces.l,
+  },
+  fullHeight: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
@@ -120,12 +131,19 @@ const styles = StyleSheet.create({
     margin: 8,
   },
   buttons: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "column",
+    gap: 12,
   },
   button: {
     minWidth: 120,
     marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: GlobalStyles.colors.grey,
+  },
+  cancelButtonText: {
+    color: GlobalStyles.colors.grey,
   },
 });

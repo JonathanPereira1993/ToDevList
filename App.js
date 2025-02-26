@@ -5,17 +5,20 @@ import { StyleSheet } from "react-native";
 import TodosContextProvider from "./store/todos-context";
 import AuthContextProvider from "./store/auth-context";
 import Navigation from "./screens/Navigation";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   return (
     <>
-      <AuthContextProvider>
-        <TodosContextProvider>
-          <NavigationContainer>
-            <Navigation />
-          </NavigationContainer>
-        </TodosContextProvider>
-      </AuthContextProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <AuthContextProvider>
+          <TodosContextProvider>
+            <NavigationContainer>
+              <Navigation />
+            </NavigationContainer>
+          </TodosContextProvider>
+        </AuthContextProvider>
+      </GestureHandlerRootView>
     </>
   );
 }

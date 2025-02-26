@@ -4,8 +4,9 @@ import { Alert, StyleSheet, View, Text } from "react-native";
 import Input from "../ManageTodos/Input";
 import Button from "../UI/Button";
 import TitleDisplay from "../UI/TitleDisplay";
+import { GlobalStyles } from "../../constants/styles";
 
-const InputForm = ({ onLogin, onSignUp }) => {
+const InputForm = ({ onLogin, onSignUp, signInWithGoogle }) => {
   const [enteredFirstName, setEnteredFirstName] = useState("");
   const [enteredLastName, setEnteredLastName] = useState("");
   const [enteredEmail, setEnteredEmail] = useState("");
@@ -227,7 +228,9 @@ const InputForm = ({ onLogin, onSignUp }) => {
           </>
         )}
       </View>
+
       <Button onPress={submitHandler}>{isLogin ? "Login" : "Sign up"}</Button>
+
       <Button isFlat onPress={formTypeHandler}>
         {isLogin ? "Create an account" : "I have an account"}
       </Button>
@@ -250,5 +253,14 @@ const styles = StyleSheet.create({
   },
   inputsRow: {
     flexDirection: "row",
+  },
+  buttonGoogle: {
+    marginTop: 12,
+    backgroundColor: GlobalStyles.colors.white,
+    borderWidth: 1,
+    borderColor: GlobalStyles.colors.primary,
+  },
+  buttonGoogleText: {
+    color: GlobalStyles.colors.primary,
   },
 });

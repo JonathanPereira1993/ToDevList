@@ -1,7 +1,21 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useEffect, useContext } from "react";
+import { db, auth } from "../firebaseConfig";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+  query,
+  where,
+} from "firebase/firestore";
+import { AuthContext } from "./auth-context";
+import { getFormattedDateFull } from "../utils/usefull";
 
 export const TodosContext = createContext({
   todos: [],
+  checkTodo: (id, checked) => {},
   addTodo: ({ title, date }) => {},
   setTodos: (todos) => {},
   deleteTodo: (id) => {},
@@ -12,20 +26,29 @@ const todosReducer = (state, action) => {
   switch (action.type) {
     case "ADD":
       return [action.payload, ...state];
+    case "CHECK":
+      const checkedTodos = state.map((todo) =>
+        todo.docId === action.payload.id
+          ? {
+              ...todo,
+              checked: action.payload.checked,
+              updatedAt: action.payload.updatedAt,
+            }
+          : todo
+      );
+      return checkedTodos;
     case "SET":
       const inverted = action.payload.reverse();
       return inverted;
     case "UPDATE":
-      const updatableTodoIndex = state.findIndex(
-        (todo) => todo.id === action.payload.id
+      const updatedTodos = state.map((todo) =>
+        todo.docId === action.payload.id
+          ? { ...todo, ...action.payload.data }
+          : todo
       );
-      const updatableTodos = state[updatableTodoIndex];
-      const updateItem = { ...updatableTodos, ...action.payload.data };
-      const updatedTodos = [...state];
-      updatedTodos[updatableTodoIndex] = updateItem;
       return updatedTodos;
     case "DELETE":
-      return state.filter((todo) => todo.id !== action.payload);
+      return state.filter((todo) => todo.docId !== action.payload);
     default:
       return state;
   }
@@ -33,29 +56,119 @@ const todosReducer = (state, action) => {
 
 const TodosContextProvider = ({ children }) => {
   const [todosState, dispatch] = useReducer(todosReducer, []);
+  const { user } = useContext(AuthContext);
 
-  const addTodo = (todoData) => {
-    dispatch({ type: "ADD", payload: todoData });
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchTodos = async () => {
+      try {
+        const q = query(
+          collection(db, "todos"),
+          where("userId", "==", user.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const loadedTodos = querySnapshot.docs.map((doc) => ({
+          docId: doc.id,
+          ...doc.data(),
+        }));
+        dispatch({ type: "SET", payload: loadedTodos });
+      } catch (error) {
+        console.error("Error fetching todos:", error.message);
+      }
+    };
+
+    fetchTodos();
+  }, [user?.uid]);
+
+  const addTodo = async (todoData) => {
+    if (!user) return;
+
+    try {
+      const docRef = await addDoc(collection(db, "todos"), {
+        ...todoData,
+        userId: user.uid,
+        checked: false,
+        createdAt: getFormattedDateFull(new Date()),
+      });
+      const newTodo = {
+        docId: docRef.id,
+        ...todoData,
+        userId: user.uid,
+        checked: false,
+        createdAt: getFormattedDateFull(new Date()),
+      };
+      dispatch({ type: "ADD", payload: newTodo });
+    } catch (error) {
+      console.error("Error adding todo:", error.message);
+    }
   };
 
-  const setTodos = (todos) => {
-    dispatch({ type: "SET", payload: todos });
+  const deleteTodo = async (id) => {
+    if (!user) return;
+
+    try {
+      await deleteDoc(doc(db, "todos", id));
+      dispatch({ type: "DELETE", payload: id });
+    } catch (error) {
+      console.error("Error deleting todo:", error.message);
+    }
   };
 
-  const deleteTodos = (id) => {
-    dispatch({ type: "DELETE", payload: id });
+  const updateTodo = async (docId, todoData) => {
+    if (!user) return;
+
+    try {
+      const todoRef = doc(db, "todos", docId);
+      await updateDoc(todoRef, {
+        ...todoData,
+        updatedAt: getFormattedDateFull(new Date()),
+      });
+      dispatch({
+        type: "UPDATE",
+        payload: {
+          id: docId,
+          data: {
+            ...todoData,
+            updatedAt: getFormattedDateFull(new Date()),
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error updating todo:", error.message);
+    }
   };
 
-  const updateTodos = (id, todoData) => {
-    dispatch({ type: "UPDATE", payload: { id: id, data: todoData } });
+  const checkTodo = async (docId, isChecked) => {
+    if (!user) return;
+
+    try {
+      const todoRef = doc(db, "todos", docId);
+      await updateDoc(todoRef, {
+        checked: isChecked,
+        updatedAt: getFormattedDateFull(new Date()),
+      });
+
+      dispatch({
+        type: "CHECK",
+        payload: {
+          id: docId,
+          checked: isChecked,
+          updatedAt: getFormattedDateFull(new Date()),
+        },
+      });
+    } catch (error) {
+      console.error("Could not check the task: ", error.message);
+    }
   };
 
   const value = {
     todos: todosState,
     addTodo: addTodo,
-    setTodos: setTodos,
-    deleteTodos: deleteTodos,
-    updateTodos: updateTodos,
+    checkTodo: checkTodo,
+    setTodos: (todos) => dispatch({ type: "SET", payload: todos }),
+    deleteTodo: deleteTodo,
+    updateTodo: updateTodo,
   };
 
   return (

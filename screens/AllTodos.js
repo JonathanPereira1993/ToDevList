@@ -17,10 +17,10 @@ const AllTodos = () => {
 
   return (
     <View style={styles.container}>
+      <TodoList todos={todosCtx.todos || []} fallbackText="No todo added yet" />
       <View style={styles.addButton}>
         <Button onPress={addTodoHandle}>Add todo</Button>
       </View>
-      <TodoList todos={todosCtx.todos} fallbackText="No todo added yet" />
     </View>
   );
 };

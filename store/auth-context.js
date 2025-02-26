@@ -1,11 +1,10 @@
 import { createContext, useReducer, useEffect } from "react";
-import { auth, googleProvider, db } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  signInWithPopup,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
@@ -134,16 +133,15 @@ const AuthContextProvider = ({ children }) => {
   const signInWithGoogle = async () => {
     dispatch({ type: "LOADING" });
     try {
-      const userCredential = await signInWithPopup(auth, googleProvider);
-      const user = userCredential.user;
+      const firebaseUser = userCredential.user;
 
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
         const userProfile = {
-          uid: user.uid,
-          email: user.email,
-          username: user.displayName,
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          username: firebaseUser.displayName,
         };
         await setDoc(userRef, userProfile);
         dispatch({ type: "LOGIN", payload: userProfile });
