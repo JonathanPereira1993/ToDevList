@@ -1,6 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../store/auth-context";
 import MainLayout from "../components/Layout/MainLayout";
+
+import { GlobalStyles } from "../constants/styles";
 
 import InputForm from "../components/Auth/InputForm";
 
@@ -24,7 +26,7 @@ const AuthStack = () => {
   if (loading) return <LoadingOverlay message="Loading..." />;
 
   return (
-    <MainLayout>
+    <MainLayout style={{ backgroundColor: GlobalStyles.colors.lightBlue }}>
       <InputForm
         onLogin={loginHandler}
         onSignUp={signUpHandler}

@@ -1,8 +1,8 @@
 import { StyleSheet, View } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 
-const MainLayout = ({ children }) => {
-  return <View style={styles.mainLayout}>{children}</View>;
+const MainLayout = ({ children, style }) => {
+  return <View style={[styles.mainLayout, style]}>{children}</View>;
 };
 
 export default MainLayout;

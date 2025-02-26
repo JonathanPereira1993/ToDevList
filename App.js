@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 
-import { StyleSheet } from "react-native";
+import { StyleSheet, Keyboard, TouchableWithoutFeedback } from "react-native";
 
 import TodosContextProvider from "./store/todos-context";
 import AuthContextProvider from "./store/auth-context";
@@ -9,7 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   return (
-    <>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <AuthContextProvider>
           <TodosContextProvider>
@@ -19,7 +19,7 @@ export default function App() {
           </TodosContextProvider>
         </AuthContextProvider>
       </GestureHandlerRootView>
-    </>
+    </TouchableWithoutFeedback>
   );
 }
 
