@@ -20,6 +20,7 @@ export const TodosContext = createContext({
   setTodos: (todos) => {},
   deleteTodo: (id) => {},
   updateTodo: (id, { title, date }) => {},
+  resetTodos: () => {},
 });
 
 const todosReducer = (state, action) => {
@@ -49,6 +50,8 @@ const todosReducer = (state, action) => {
       return updatedTodos;
     case "DELETE":
       return state.filter((todo) => todo.docId !== action.payload);
+    case "RESET":
+      return [];
     default:
       return state;
   }
@@ -162,6 +165,10 @@ const TodosContextProvider = ({ children }) => {
     }
   };
 
+  const resetTodos = () => {
+    dispatch({ type: "RESET" });
+  };
+
   const value = {
     todos: todosState,
     addTodo: addTodo,
@@ -169,6 +176,7 @@ const TodosContextProvider = ({ children }) => {
     setTodos: (todos) => dispatch({ type: "SET", payload: todos }),
     deleteTodo: deleteTodo,
     updateTodo: updateTodo,
+    resetTodos: resetTodos,
   };
 
   return (

@@ -2,6 +2,7 @@ import TodoItem from "./TodoItem";
 import { StyleSheet, Text, FlatList } from "react-native";
 import { View } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
+import TitleDisplay from "../UI/TitleDisplay";
 
 const TodoList = ({ todos = [], fallbackText }) => {
   let content = <Text style={styles.fallbackText}>{fallbackText}</Text>;
@@ -12,11 +13,9 @@ const TodoList = ({ todos = [], fallbackText }) => {
   if (todos.length > 0) {
     return (
       <View style={styles.mainContent}>
+        <TitleDisplay center>My Todo List</TitleDisplay>
         {todos.length > 0 && (
           <View style={styles.listContainer}>
-            <Text style={styles.listLabel}>
-              To do List - {uncheckedList.length}
-            </Text>
             <FlatList
               style={styles.uncheckList}
               data={uncheckedList}
@@ -42,7 +41,7 @@ const TodoList = ({ todos = [], fallbackText }) => {
         {todos.length > 0 && (
           <View style={styles.listContainer}>
             <Text style={styles.listLabel}>
-              Checked list - {checkedList.length}
+              Completed - {checkedList.length}
             </Text>
             <FlatList
               style={styles.checkList}
@@ -97,7 +96,7 @@ const styles = StyleSheet.create({
   listLabel: {
     textAlign: "left",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "700",
     marginBottom: GlobalStyles.spaces.s,
   },
 });

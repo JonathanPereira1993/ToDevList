@@ -4,6 +4,7 @@ import Input from "./Input";
 import { GlobalStyles } from "../../constants/styles";
 import { getFormattedDate } from "../../utils/usefull";
 import Button from "../UI/Button";
+import CheckBox from "../UI/CheckBox";
 
 const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
   const [inputs, setInputs] = useState({
@@ -13,6 +14,10 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
     },
     notes: {
       value: defaultValues?.notes ? defaultValues.notes.toString() : "",
+      isValid: true,
+    },
+    checked: {
+      value: defaultValues?.checked ? defaultValues.checked : false,
       isValid: true,
     },
   });
@@ -75,6 +80,13 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
               onChangeText: inputChangeHandler.bind(this, "notes"),
               value: inputs.notes.value,
             }}
+          />
+        </View>
+        <View>
+          <Text>Is Checked: </Text>
+          <CheckBox
+            isChecked={inputs.checked.value}
+            onPress={inputChangeHandler.bind(this, "checked")}
           />
         </View>
         {formIsInvalid && (

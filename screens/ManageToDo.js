@@ -29,6 +29,17 @@ const ManageToDo = ({ route, navigation }) => {
   useEffect(() => {
     navigation.setOptions({
       title: isEditing ? "Edit Todo" : "Add Todo",
+      headerBackTitleVisible: false,
+      headerLeft: () => (
+        <IconButton
+          iconName="home"
+          size={24}
+          color="white"
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+      ),
       headerRight: isEditing
         ? () => (
             <IconButton

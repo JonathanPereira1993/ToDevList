@@ -7,6 +7,7 @@ import IconButton from "../components/UI/IconButton";
 import AllTodos from "./AllTodos";
 import ManageToDo from "./ManageToDo";
 import ProfileScreen from "./ProfileScreen";
+import { getFormattedDate } from "../utils/usefull";
 
 const AuthenticatedStack = () => {
   const Stack = createNativeStackNavigator();
@@ -14,6 +15,7 @@ const AuthenticatedStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        title: getFormattedDate(new Date()),
         headerStyle: {
           backgroundColor: GlobalStyles.colors.primary,
         },

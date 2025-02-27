@@ -1,10 +1,11 @@
 import TodoList from "../components/Todo/TodoList";
 import { StyleSheet, View } from "react-native";
 import { GlobalStyles } from "../constants/styles";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { TodosContext } from "../store/todos-context";
 import Button from "../components/UI/Button";
 import { useNavigation } from "@react-navigation/native";
+import { getFormattedDate } from "../utils/usefull";
 
 const AllTodos = () => {
   const navigation = useNavigation();
@@ -14,6 +15,12 @@ const AllTodos = () => {
   const addTodoHandle = () => {
     navigation.navigate("ManageTodo");
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: getFormattedDate(new Date()),
+    });
+  }, []);
 
   return (
     <View style={styles.container}>

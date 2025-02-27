@@ -83,10 +83,6 @@ const TodoItem = ({
     transform: [{ translateX: translateX.value }],
   }));
 
-  const textLineStyle = useAnimatedStyle(() => ({
-    width: textLineWidth.value,
-  }));
-
   const swipeGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .onUpdate((event) => {
@@ -146,9 +142,6 @@ const TodoItem = ({
                 >
                   {title}
                 </Text>
-                <Animated.View
-                  style={[styles.checkedTextLine, textLineStyle]}
-                />
               </View>
               <Text style={styles.date}>{date}</Text>
             </Pressable>
