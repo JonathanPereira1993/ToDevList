@@ -12,11 +12,13 @@ const TodoList = ({ todos = [], fallbackText }) => {
   if (todos.length > 0) {
     return (
       <View style={styles.mainContent}>
-        {uncheckedList.length > 0 && (
-          <>
-            <Text style={styles.listLabel}>To do List</Text>
+        {todos.length > 0 && (
+          <View style={styles.listContainer}>
+            <Text style={styles.listLabel}>
+              To do List - {uncheckedList.length}
+            </Text>
             <FlatList
-              style={styles.list}
+              style={styles.uncheckList}
               data={uncheckedList}
               keyExtractor={(item) => item.docId}
               extraData={uncheckedList}
@@ -26,16 +28,24 @@ const TodoList = ({ todos = [], fallbackText }) => {
                   title={item.title}
                   date={item.createdAt}
                   checked={item.checked}
+                  isFirstItem={uncheckedList[0].docId === item.docId}
+                  isLastItem={
+                    uncheckedList[uncheckedList.length - 1].docId === item.docId
+                  }
+                  isOnlyItem={uncheckedList.length <= 1}
                 />
               )}
+              nestedScrollEnabled={true}
             />
-          </>
+          </View>
         )}
-        {checkedList.length > 0 && (
-          <>
-            <Text style={styles.listLabel}>Checked list</Text>
+        {todos.length > 0 && (
+          <View style={styles.listContainer}>
+            <Text style={styles.listLabel}>
+              Checked list - {checkedList.length}
+            </Text>
             <FlatList
-              style={styles.list}
+              style={styles.checkList}
               data={checkedList}
               keyExtractor={(item) => item.docId}
               extraData={checkedList}
@@ -45,10 +55,16 @@ const TodoList = ({ todos = [], fallbackText }) => {
                   title={item.title}
                   date={item.createdAt}
                   checked={item.checked}
+                  isFirstItem={checkedList[0].docId === item.docId}
+                  isLastItem={
+                    checkedList[checkedList.length - 1].docId === item.docId
+                  }
+                  isOnlyItem={checkedList.length <= 1}
                 />
               )}
+              nestedScrollEnabled={true}
             />
-          </>
+          </View>
         )}
       </View>
     );
@@ -63,10 +79,16 @@ const styles = StyleSheet.create({
   mainContent: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "space-around",
   },
-  list: {
-    height: "50%",
+  listContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  uncheckList: {
+    flexGrow: 1,
+  },
+  checkList: {
+    flexGrow: 1,
   },
   fallbackText: {
     textAlign: "center",

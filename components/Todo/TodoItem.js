@@ -3,13 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Alert,
   TouchableOpacity,
 } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CheckBox from "../UI/CheckBox";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { TodosContext } from "../../store/todos-context";
 import { useNavigation } from "@react-navigation/native";
 import Animated, {
@@ -23,7 +22,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 
-const SWIPE_THRESHOLD = -50; // Amount to swipe before showing delete button
+const SWIPE_THRESHOLD = -50;
 
 const TodoItem = ({
   id,
@@ -33,21 +32,43 @@ const TodoItem = ({
   title,
   date,
   checked,
+  style,
+  isFirstItem,
+  isLastItem,
+  isOnlyItem,
 }) => {
   const { checkTodo, deleteTodo } = useContext(TodosContext);
-  const [ischecked, setIsChecked] = useState(checked);
+  const [isChecked, setIsChecked] = useState(checked);
   const navigation = useNavigation();
+
+  const textWidthRef = useRef({});
+
+  const textLineWidth = useSharedValue(
+    checked ? textWidthRef.current[id] || 0 : 0
+  );
 
   useEffect(() => {
     setIsChecked(checked);
+    textLineWidth.value = withTiming(
+      checked ? textWidthRef.current[id] || 0 : 0,
+      {
+        duration: 300,
+      }
+    );
   }, [checked]);
 
   const onCheckHandler = () => {
-    setIsChecked((prev) => {
-      const newCheckedState = !prev;
-      checkTodo(id, newCheckedState);
-      return newCheckedState;
-    });
+    const newCheckedState = !isChecked;
+    setIsChecked(newCheckedState);
+
+    textLineWidth.value = withTiming(
+      newCheckedState ? textWidthRef.current[id] || 0 : 0,
+      {
+        duration: 300,
+      }
+    );
+
+    checkTodo(id, newCheckedState);
   };
 
   const todoPressHandler = () => {
@@ -62,7 +83,12 @@ const TodoItem = ({
     transform: [{ translateX: translateX.value }],
   }));
 
+  const textLineStyle = useAnimatedStyle(() => ({
+    width: textLineWidth.value,
+  }));
+
   const swipeGesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
     .onUpdate((event) => {
       if (event.translationX < 0) {
         translateX.value = event.translationX;
@@ -80,23 +106,54 @@ const TodoItem = ({
     <GestureHandlerRootView>
       <View style={styles.container}>
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[
+            styles.deleteButton,
+            isFirstItem ? styles.firstItem : isLastItem ? styles.lastItem : "",
+            isOnlyItem && styles.onlyItem,
+          ]}
           onPress={() => deleteTodo(id)}
         >
           <Ionicons name="trash" size={24} color="white" />
         </TouchableOpacity>
 
-        <GestureDetector gesture={swipeGesture}>
-          <Animated.View style={[styles.item, animatedStyle]}>
+        <GestureDetector
+          gesture={swipeGesture}
+          simultaneousHandlers={["scrollViewRef"]}
+        >
+          <Animated.View
+            style={[
+              styles.item,
+              animatedStyle,
+              style,
+              isFirstItem && !isOnlyItem
+                ? styles.firstItem
+                : isLastItem && !isOnlyItem
+                ? styles.lastItem
+                : null,
+              isOnlyItem && styles.onlyItem,
+            ]}
+          >
             <View style={styles.iconContainer}>
               <Ionicons name={iconName} size={iconSize} color={iconColor} />
             </View>
             <Pressable style={styles.textContainer} onPress={todoPressHandler}>
-              <Text style={styles.title}>{title}</Text>
+              <View style={styles.relative}>
+                <Text
+                  onLayout={(event) => {
+                    textWidthRef.current[id] = event.nativeEvent.layout.width;
+                  }}
+                  style={[styles.title, isChecked && styles.strikethrough]}
+                >
+                  {title}
+                </Text>
+                <Animated.View
+                  style={[styles.checkedTextLine, textLineStyle]}
+                />
+              </View>
               <Text style={styles.date}>{date}</Text>
             </Pressable>
             <View>
-              <CheckBox onPress={onCheckHandler} isChecked={ischecked} />
+              <CheckBox onPress={onCheckHandler} isChecked={isChecked} />
             </View>
           </Animated.View>
         </GestureDetector>
@@ -111,7 +168,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: GlobalStyles.spaces.base,
   },
   deleteButton: {
     width: "80%",
@@ -122,11 +178,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     position: "absolute",
     right: 0,
-    borderRadius: 16,
   },
   item: {
     flex: 1,
-    borderRadius: 16,
     paddingHorizontal: GlobalStyles.spaces.base,
     paddingVertical: GlobalStyles.spaces.m,
     flexDirection: "row",
@@ -134,11 +188,26 @@ const styles = StyleSheet.create({
     gap: GlobalStyles.spaces.base,
     paddingRight: GlobalStyles.spaces.m,
     backgroundColor: "white",
+    borderBottomWidth: 1,
+    borderColor: GlobalStyles.colors.lightGrey,
+  },
+  firstItem: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  lastItem: {
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    borderBottomWidth: 0,
+  },
+  onlyItem: {
+    borderRadius: 16,
+    borderBottomWidth: 0,
   },
   iconContainer: {
     padding: GlobalStyles.spaces.base,
     backgroundColor: GlobalStyles.colors.lightBlue,
-    borderRadius: "100%",
+    borderRadius: 50,
   },
   textContainer: {
     flexDirection: "column",
@@ -150,8 +219,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: GlobalStyles.colors.primary,
   },
+  strikethrough: {
+    textDecorationLine: "line-through",
+    color: GlobalStyles.colors.grey,
+  },
   date: {
     color: GlobalStyles.colors.text,
     fontWeight: "500",
+  },
+  relative: {
+    position: "relative",
+  },
+  checkedTextLine: {
+    position: "absolute",
+    top: "50%",
+    height: 2,
+    backgroundColor: GlobalStyles.colors.grey,
   },
 });

@@ -1,8 +1,6 @@
 import { initializeApp } from "firebase/app";
 import {
-  getAuth,
   GoogleAuthProvider,
-  setPersistence,
   initializeAuth,
   getReactNativePersistence,
 } from "firebase/auth";
